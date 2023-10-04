@@ -17,9 +17,17 @@ class ForecastViewController: UIViewController {
   @IBOutlet weak var dateLabel: UILabel!
   @IBOutlet weak var forecastImageView: UIImageView!
   
+    private var locations = [Location]() // stores the different locations
+    private var selectedLocationIndex = 0
+    
   override func viewDidLoad() {
     super.viewDidLoad()
     addGradient()
+      let sanJose = Location(name: "San Jose", latitude: 37.335480, longitude: -121.893028)
+              let manila = Location(name: "Manila", latitude: 12.8797, longitude: 121.7740)
+              let italy = Location(name: "Italy", latitude: 41.8719, longitude: 12.5674)
+              locations = [sanJose, manila, italy]
+      changeLocation(withLocationIndex: 0) // when the view loads, make sure the first location is shown
   }
   
   private func addGradient() {
@@ -31,13 +39,32 @@ class ForecastViewController: UIViewController {
     gradientLayer.endPoint = CGPoint(x: 0.5, y: 1)
     view.layer.insertSublayer(gradientLayer, at: 0)
   }
-  
-  @IBAction func didTapBackButton(_ sender: UIButton) {
     
-  }
+    private func changeLocation(withLocationIndex locationIndex: Int) {
+            guard locationIndex < locations.count else { return }
+            let location = locations[locationIndex]
+            locationLabel.text = location.name
+            
+        }
+    private func configure(with forecast: CurrentWeatherForecast) {
+        forecastImageView.image = forecast.weatherCode.image
+        descriptionLabel.text = forecast.weatherCode.description
+        temperatureLabel.text = "\(forecast.temperature)"
+        windspeedLabel.text = "\(forecast.windSpeed) mph"
+        windDirectionLabel.text = "\(forecast.windDirection)°"
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "MMMM d, yyyy"
+        dateLabel.text = dateFormatter.string(from: Date())
+    }
   
-  @IBAction func didTapForwardButton(_ sender: UIButton) {
-    
-  }
+    @IBAction func didTapBackButton(_ sender: UIButton) {
+            selectedLocationIndex = max(0, selectedLocationIndex - 1) // make sure selectedLocationIndex is always >= 0
+            changeLocation(withLocationIndex: selectedLocationIndex)
+        }
+        @IBAction func didTapForwardButton(_ sender: UIButton) {
+            selectedLocationIndex = min(locations.count - 1, selectedLocationIndex + 1) // make sure selectedLocationIndex is always < locations.count
+            changeLocation(withLocationIndex: selectedLocationIndex)
+        }
 }
+
 
